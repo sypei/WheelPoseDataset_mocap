@@ -1,33 +1,18 @@
 const figures = [];
 const answers = {};
+const lines = [];
 
-// const descriptionPath = `dataset_mocap/prompts.txt`;
+// Fetch the file content using the fetch API (Fetch is blocked by CORS if tested locally)
+const descriptionPath = `dataset_mocap/prompts.txt`;
 
-// // Fetch the file content using the fetch API (Fetch is blocked by CORS if tested locally)
 // fetch(descriptionPath)
 //   .then(response => response.text())
 //   .then(text => {
 //     // Split the text content into lines
-//     const lines = text.split('\n');
-//     for (let i = 0; i < 100; i++) {
-//         const figure = {
-//             number: i,
-//             filename: `${i}.gif`,
-//             alt: `Figure ${i}`,
-//             description: `${lines[i]}`
-//         };
-//         figures.push(figure);
-//     }
+//     lines = text.split('\n');
+
 //   });
 
-for (let i = 0; i < 100; i++) {
-    const figure = {
-        number: i,
-        filename: `${i}.gif`,
-        alt: `Figure ${i}`,
-    };
-    figures.push(figure);
-}
 
 const form = document.getElementById("surveyForm");
 const prevButton = document.getElementById("prevButton");
@@ -42,11 +27,15 @@ let currentIndex = 0;
 function showFigure(index) {
     form.innerHTML = ""; // Clear the container
 
+    const content = document.createElement("div");
+    content.className = "content";
+
     const figureDiv = document.createElement("div");
     figureDiv.className = "figure";
 
     const figureNumber = document.createElement("h2");
-    figureNumber.textContent = `Figure ${index}`;
+    // figureNumber.textContent = `Figure ${index}  `+lines[index];
+    figureNumber.textContent = `Figure ${index}  `;
 
     const figureImage = document.createElement("img");
     figureImage.src = `dataset_mocap/${index}.gif`; // Adjust the image path
@@ -56,45 +45,99 @@ function showFigure(index) {
     figureDiv.appendChild(figureImage);
 
 
-    // 5 point likert scale
+    // 7 point likert scale
+
+    const scoreDiv = document.createElement("div");
+    scoreDiv.className = "likert-scale";
     // difficulty
     const difficultylabel = document.createElement("label");
-    difficultylabel.textContent = `How difficult is it for you to do this motion in real life?`;
+    difficultylabel.textContent = `Q1: How difficult is it for you to do this motion?`;
     const difficultyDiv = document.createElement("div");
-
-    difficultyDiv.appendChild(document.createTextNode("No difficulty"));
-    for (let i = 1; i <= 5; i++) {
+    const difficultyDescription = [
+        "Cannot perform the sequence at all.",
+        "Can barely perform the sequence.",
+        "With considerable difficulty.",
+        "Neither easy nor difficult to perform.",
+        "With some difficulty.",
+        "With very minor difficulty.",
+        "Without any difficulty."]
+    
+    for (let i = 1; i <= 7; i++) {
         const Input = document.createElement("input");
         Input.type = "radio";
         Input.name = `difficulty-${index}`;
         Input.value = `${i}`;
         Input.required = true;
-        difficultyDiv.appendChild(Input);
+        const radioItem = document.createElement("div");
+        radioItem.className = "radio-item"
+        radioItem.appendChild(Input);
+        radioItem.appendChild(document.createTextNode(difficultyDescription[i-1]));
+        difficultyDiv.appendChild(radioItem);
     }
-    difficultyDiv.appendChild(document.createTextNode("Unable"));
+    
     
     // freqency
     const frequencylabel = document.createElement("label");
-    frequencylabel.textContent = `How frequently do you do this motion in your real life?`;
+    frequencylabel.textContent = `Q2: How often do you do this motion?`;
     const frequencyDiv = document.createElement("div");
+    const frequencyDescription = [
+        "Never",
+        "Rarely (once a month or less)",
+        "Occasionally (a few times a month)",
+        "Sometimes (once a week or so)",
+        "Often (several times a week)",
+        "Very Often (almost every day)",
+        "Every day"
+    ]
 
-    frequencyDiv.appendChild(document.createTextNode("Every day"));
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 7; i++) {
         const Input = document.createElement("input");
         Input.type = "radio";
         Input.name = `frequency-${index}`;
         Input.value = `${i}`;
         Input.required = true;
-        frequencyDiv.appendChild(Input);
+        const radioItem = document.createElement("div");
+        radioItem.className = "radio-item"
+        radioItem.appendChild(Input);
+        radioItem.appendChild(document.createTextNode(frequencyDescription[i-1]));
+        frequencyDiv.appendChild(radioItem);       
     }
-    frequencyDiv.appendChild(document.createTextNode("Never"));
-
-    form.appendChild(figureDiv);
-    form.appendChild(difficultylabel);
-    form.appendChild(difficultyDiv);
     
-    form.appendChild(frequencylabel);
-    form.appendChild(frequencyDiv);
+    
+    // indirect experience
+    const IElabel = document.createElement("label");
+    IElabel.textContent = `Q3: Have you seen or do you know of other wheelchair users who perform this motion?`;
+    const IEDiv = document.createElement("div");
+
+    const yesInput = document.createElement("input");
+    yesInput.type = "radio";
+    yesInput.name = `IE-${index}`;
+    yesInput.value = `yes`;
+    yesInput.required = true;
+    IEDiv.appendChild(yesInput);
+    IEDiv.appendChild(document.createTextNode("Yes"));
+
+    const noInput = document.createElement("input");
+    noInput.type = "radio";
+    noInput.name = `IE-${index}`;
+    noInput.value = `no`;
+    noInput.required = true;
+    IEDiv.appendChild(noInput);
+    IEDiv.appendChild(document.createTextNode("No"));
+
+    scoreDiv.appendChild(difficultylabel);
+    scoreDiv.appendChild(difficultyDiv);
+    
+    scoreDiv.appendChild(frequencylabel);
+    scoreDiv.appendChild(frequencyDiv);
+
+    scoreDiv.appendChild(IElabel);
+    scoreDiv.appendChild(IEDiv);
+
+    content.appendChild(figureDiv);
+    content.appendChild(scoreDiv);
+    form.appendChild(content);
+    
     
 }
 
@@ -103,8 +146,11 @@ prevButton.addEventListener("click", () => {
     const difficultyAns = difficultyRadio?difficultyRadio.value:0;
     const frequencyRadio = document.querySelector(`input[name="frequency-${currentIndex}"]:checked`);
     const frequencyAns = frequencyRadio?frequencyRadio.value:0;
+    const IERadio = document.querySelector(`input[name="IE-${currentIndex}"]:checked`);
+    const IEAns = IERadio?IERadio.value:0;
     answers[`d-${currentIndex}`] = difficultyAns;
     answers[`f-${currentIndex}`] = frequencyAns;
+    answers[`i-${currentIndex}`] = IEAns;
     if (currentIndex > 0) {
         currentIndex--;
         showFigure(currentIndex);
@@ -116,8 +162,11 @@ nextButton.addEventListener("click", () => {
     const difficultyAns = difficultyRadio?difficultyRadio.value:0;
     const frequencyRadio = document.querySelector(`input[name="frequency-${currentIndex}"]:checked`);
     const frequencyAns = frequencyRadio?frequencyRadio.value:0;
+    const IERadio = document.querySelector(`input[name="IE-${currentIndex}"]:checked`);
+    const IEAns = IERadio?IERadio.value:0;
     answers[`d-${currentIndex}`] = difficultyAns;
     answers[`f-${currentIndex}`] = frequencyAns;
+    answers[`i-${currentIndex}`] = IEAns;
     if (currentIndex < figures.length - 1) {
         currentIndex++;
         showFigure(currentIndex);
@@ -136,8 +185,11 @@ function saveAnswers() {
     const difficultyAns = difficultyRadio?difficultyRadio.value:0;
     const frequencyRadio = document.querySelector(`input[name="frequency-${currentIndex}"]:checked`);
     const frequencyAns = frequencyRadio?frequencyRadio.value:0;
+    const IERadio = document.querySelector(`input[name="IE-${currentIndex}"]:checked`);
+    const IEAns = IERadio?IERadio.value:0;
     answers[`d-${currentIndex}`] = difficultyAns;
     answers[`f-${currentIndex}`] = frequencyAns;
+    answers[`i-${currentIndex}`] = IEAns;
     // Display saved answers in the console
     console.log("Answers:", answers);
 }
@@ -149,8 +201,11 @@ submitButton.addEventListener("click", function(event) {
     const difficultyAns = difficultyRadio?difficultyRadio.value:0;
     const frequencyRadio = document.querySelector(`input[name="frequency-${currentIndex}"]:checked`);
     const frequencyAns = frequencyRadio?frequencyRadio.value:0;
+    const IERadio = document.querySelector(`input[name="IE-${currentIndex}"]:checked`);
+    const IEAns = IERadio?IERadio.value:0;
     answers[`d-${currentIndex}`] = difficultyAns;
     answers[`f-${currentIndex}`] = frequencyAns;
+    answers[`i-${currentIndex}`] = IEAns;
 
     // Convert responses to CSV format
     const csvData = Object.entries(answers).map(([figure, response]) => `${figure},${response}`).join("\n");
@@ -161,7 +216,7 @@ submitButton.addEventListener("click", function(event) {
     // Create a download link for the CSV file
     const downloadLink = document.createElement("a");
     downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.download = "survey_responses.csv";
+    downloadLink.download = "survey_responses_mocap.csv";
     downloadLink.click();
 });
 
