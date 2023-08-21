@@ -5,13 +5,13 @@ const lines = [];
 // Fetch the file content using the fetch API (Fetch is blocked by CORS if tested locally)
 const descriptionPath = `dataset_mocap/prompts.txt`;
 
-// fetch(descriptionPath)
-//   .then(response => response.text())
-//   .then(text => {
-//     // Split the text content into lines
-//     lines = text.split('\n');
+fetch(descriptionPath)
+  .then(response => response.text())
+  .then(text => {
+    // Split the text content into lines
+    lines = text.split('\n');
 
-//   });
+  });
 
 
 const form = document.getElementById("surveyForm");
@@ -34,8 +34,8 @@ function showFigure(index) {
     figureDiv.className = "figure";
 
     const figureNumber = document.createElement("h2");
-    // figureNumber.textContent = `Figure ${index}  `+lines[index];
-    figureNumber.textContent = `Figure ${index}  `;
+    figureNumber.textContent = `Figure ${index}  `+lines[index];
+    // figureNumber.textContent = `Figure ${index}  `;
 
     const figureImage = document.createElement("img");
     figureImage.src = `dataset_mocap/${index}.gif`; // Adjust the image path
