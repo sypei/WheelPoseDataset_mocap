@@ -13,11 +13,12 @@
 }
 
 .figure img {
-    max-width: 80%; /* Adjust image width as needed */
+    max-width: 90%; /* Adjust image width as needed */
     height: auto;
 }
 
 .likert-scale {
+    margin-top: 100px;
     display: flex;
     flex-direction: column;
     width: 100%; /* Adjust Likert scale width as needed */
@@ -51,7 +52,7 @@ body {
 
 button {
     display: block;
-    margin-top: 20px;
+    margin-top: -20px;
     margin-left: 20px;
     font-size: 35px;
 }

@@ -1,24 +1,24 @@
 const figures = [];
 const answers = {};
 const lines = [];
-
+const figuresCount = 100;
 // Fetch the file content using the fetch API (Fetch is blocked by CORS if tested locally)
 const descriptionPath = `dataset_mocap/prompts.txt`;
 
-fetch(descriptionPath)
-  .then(response => response.text())
-  .then(text => {
-    // Split the text content into lines
-    lines = text.split('\n');
+// fetch(descriptionPath)
+//   .then(response => response.text())
+//   .then(text => {
+//     // Split the text content into lines
+//     lines = text.split('\n');
 
-  });
+//   });
 
 
 const form = document.getElementById("surveyForm");
 const prevButton = document.getElementById("prevButton");
 const saveButton = document.getElementById("saveButton");
-const nextButton = document.getElementById("nextButton");
 const submitButton = document.getElementById("submitButton");
+const nextButton = document.getElementById("nextButton");
 
 const responses = {}; // Store responses in this object
 
@@ -34,8 +34,8 @@ function showFigure(index) {
     figureDiv.className = "figure";
 
     const figureNumber = document.createElement("h2");
-    figureNumber.textContent = `Figure ${index}  `+lines[index];
-    // figureNumber.textContent = `Figure ${index}  `;
+    // figureNumber.textContent = `Figure ${index}  `+lines[index];
+    figureNumber.textContent = `Figure ${index+1}  `;
 
     const figureImage = document.createElement("img");
     figureImage.src = `dataset_mocap/${index}.gif`; // Adjust the image path
@@ -112,7 +112,7 @@ function showFigure(index) {
     const yesInput = document.createElement("input");
     yesInput.type = "radio";
     yesInput.name = `IE-${index}`;
-    yesInput.value = `yes`;
+    yesInput.value = `1`;
     yesInput.required = true;
     IEDiv.appendChild(yesInput);
     IEDiv.appendChild(document.createTextNode("Yes"));
@@ -120,7 +120,7 @@ function showFigure(index) {
     const noInput = document.createElement("input");
     noInput.type = "radio";
     noInput.name = `IE-${index}`;
-    noInput.value = `no`;
+    noInput.value = `0`;
     noInput.required = true;
     IEDiv.appendChild(noInput);
     IEDiv.appendChild(document.createTextNode("No"));
@@ -142,15 +142,7 @@ function showFigure(index) {
 }
 
 prevButton.addEventListener("click", () => {
-    const difficultyRadio = document.querySelector(`input[name="difficulty-${currentIndex}"]:checked`);
-    const difficultyAns = difficultyRadio?difficultyRadio.value:0;
-    const frequencyRadio = document.querySelector(`input[name="frequency-${currentIndex}"]:checked`);
-    const frequencyAns = frequencyRadio?frequencyRadio.value:0;
-    const IERadio = document.querySelector(`input[name="IE-${currentIndex}"]:checked`);
-    const IEAns = IERadio?IERadio.value:0;
-    answers[`d-${currentIndex}`] = difficultyAns;
-    answers[`f-${currentIndex}`] = frequencyAns;
-    answers[`i-${currentIndex}`] = IEAns;
+    saveAnswers();
     if (currentIndex > 0) {
         currentIndex--;
         showFigure(currentIndex);
@@ -158,16 +150,8 @@ prevButton.addEventListener("click", () => {
 });
 
 nextButton.addEventListener("click", () => {
-    const difficultyRadio = document.querySelector(`input[name="difficulty-${currentIndex}"]:checked`);
-    const difficultyAns = difficultyRadio?difficultyRadio.value:0;
-    const frequencyRadio = document.querySelector(`input[name="frequency-${currentIndex}"]:checked`);
-    const frequencyAns = frequencyRadio?frequencyRadio.value:0;
-    const IERadio = document.querySelector(`input[name="IE-${currentIndex}"]:checked`);
-    const IEAns = IERadio?IERadio.value:0;
-    answers[`d-${currentIndex}`] = difficultyAns;
-    answers[`f-${currentIndex}`] = frequencyAns;
-    answers[`i-${currentIndex}`] = IEAns;
-    if (currentIndex < figures.length - 1) {
+    saveAnswers();
+    if (currentIndex < figuresCount - 1) {
         currentIndex++;
         showFigure(currentIndex);
     }
@@ -178,6 +162,8 @@ showFigure(currentIndex);
 
 saveButton.addEventListener("click", () => {
     saveAnswers();
+    // Display saved answers in the console
+    console.log("Answers:", answers);
 });
 
 function saveAnswers() {
@@ -190,22 +176,12 @@ function saveAnswers() {
     answers[`d-${currentIndex}`] = difficultyAns;
     answers[`f-${currentIndex}`] = frequencyAns;
     answers[`i-${currentIndex}`] = IEAns;
-    // Display saved answers in the console
-    console.log("Answers:", answers);
 }
 
 submitButton.addEventListener("click", function(event) {
     event.preventDefault();
     // record the current page
-    const difficultyRadio = document.querySelector(`input[name="difficulty-${currentIndex}"]:checked`);
-    const difficultyAns = difficultyRadio?difficultyRadio.value:0;
-    const frequencyRadio = document.querySelector(`input[name="frequency-${currentIndex}"]:checked`);
-    const frequencyAns = frequencyRadio?frequencyRadio.value:0;
-    const IERadio = document.querySelector(`input[name="IE-${currentIndex}"]:checked`);
-    const IEAns = IERadio?IERadio.value:0;
-    answers[`d-${currentIndex}`] = difficultyAns;
-    answers[`f-${currentIndex}`] = frequencyAns;
-    answers[`i-${currentIndex}`] = IEAns;
+    saveAnswers();
 
     // Convert responses to CSV format
     const csvData = Object.entries(answers).map(([figure, response]) => `${figure},${response}`).join("\n");
